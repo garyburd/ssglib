@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<style>*, *::before, *::after { box-sizing: border-box; }
+body {
+  color: #111;
+  background-color: #fefefe;
+  max-width: 50rem;
+  padding: 0 1rem 1rem 1rem;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+nav.top ul { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; align-items: end; }
+nav.top li:not(:first-child)::before { display: inline-block; margin: 0 0.25rem; content: "|"; }
+nav.top li:first-child { font-weight: bold; font-size: 1.13em; }
+nav.top a { text-decoration: none; }
+nav.top a:hover { text-decoration: underline; }
+body > header { margin-top: 1.25rem; margin-bottom: 1.7rem; }
+a { color: #0366d6; }
+a:hover { color: #0550ae; }
+pre { background-color: #f6f8fa; padding: 1em; overflow-x: auto; border-radius: 6px; }
+code { font-size: 0.9em; }
+:not(pre) > code { background-color: #f6f8fa; padding: 0.15em 0.3em; border-radius: 3px; }
+article > h1 { margin-bottom: 0.5rem; }
+.callout { border-left: 3px solid #d0d7de; padding: 0.5em 1em; margin: 1em 0; }
+.callout-note { border-left-color: #0366d6; }
+.callout-warning { border-left-color: #d29922; }
+</style>
+<title>ssglib – Site</title>
+</head>
+<body>
+<header><nav class="top">
+<ul>
+<li><a href="/ssglib/" title="Home">ssglib</a></li>
+</ul>
+</nav></header>
+<main>
+<article><h1>Site</h1>
+<p>The <code>ssglib.site</code> module manages the output directory for
+a static site. It tracks which files are written, skips unchanged files,
+and can clean up stale output.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">site</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.site&quot;</span></span></code></pre></div>
+<h2>Site.new(root)</h2>
+<p>Create a new site rooted at <code>root</code>. The directory is
+created if it does not exist.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">s</span> <span class="op">=</span> <span class="va">site</span><span class="op">.</span><span class="va">Site</span><span class="op">.</span>new<span class="op">(</span><span class="st">&quot;docs&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2>Site:prepare(url)</h2>
+<p>Prepare to write a file at the given URL. Creates parent directories
+as needed. URLs ending with <code>/</code> are mapped to
+<code>index.html</code>. Returns the file system path of the output
+file.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">path</span> <span class="op">=</span> <span class="va">s</span><span class="op">:</span>prepare<span class="op">(</span><span class="st">&quot;/articles/hello/&quot;</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- path is &quot;docs/articles/hello/index.html&quot;</span></span></code></pre></div>
+<h2>Site:write_data(url, data)</h2>
+<p>Write a string to the file at <code>url</code>. If the file already
+exists with the same content, the write is skipped.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">s</span><span class="op">:</span>write_data<span class="op">(</span><span class="st">&quot;/index.html&quot;</span><span class="op">,</span> <span class="st">&quot;&lt;html&gt;...&lt;/html&gt;&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2>Site:write_file(url, path, mtime)</h2>
+<p>Copy a file from <code>path</code> to the site at <code>url</code>.
+If the target is newer than the source (based on <code>mtime</code>),
+the copy is skipped.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">s</span><span class="op">:</span>write_file<span class="op">(</span><span class="st">&quot;/style.css&quot;</span><span class="op">,</span> <span class="st">&quot;src/style.css&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2>Site:write_dir(url, root)</h2>
+<p>Recursively copy all files from the <code>root</code> directory to
+the site under <code>url</code>. Dotfiles are skipped.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="va">s</span><span class="op">:</span>write_dir<span class="op">(</span><span class="st">&quot;/&quot;</span><span class="op">,</span> <span class="st">&quot;static&quot;</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- copies static/.nojekyll to docs/.nojekyll</span></span></code></pre></div>
+<h2>Site:cleanup()</h2>
+<p>Delete files in the output directory that were not written during
+this build. Prints a summary of total, updated, and deleted files.</p></article>
+</main>
+</body>
+</html>

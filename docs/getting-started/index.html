@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<style>*, *::before, *::after { box-sizing: border-box; }
+body {
+  color: #111;
+  background-color: #fefefe;
+  max-width: 50rem;
+  padding: 0 1rem 1rem 1rem;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+nav.top ul { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; align-items: end; }
+nav.top li:not(:first-child)::before { display: inline-block; margin: 0 0.25rem; content: "|"; }
+nav.top li:first-child { font-weight: bold; font-size: 1.13em; }
+nav.top a { text-decoration: none; }
+nav.top a:hover { text-decoration: underline; }
+body > header { margin-top: 1.25rem; margin-bottom: 1.7rem; }
+a { color: #0366d6; }
+a:hover { color: #0550ae; }
+pre { background-color: #f6f8fa; padding: 1em; overflow-x: auto; border-radius: 6px; }
+code { font-size: 0.9em; }
+:not(pre) > code { background-color: #f6f8fa; padding: 0.15em 0.3em; border-radius: 3px; }
+article > h1 { margin-bottom: 0.5rem; }
+.callout { border-left: 3px solid #d0d7de; padding: 0.5em 1em; margin: 1em 0; }
+.callout-note { border-left-color: #0366d6; }
+.callout-warning { border-left-color: #d29922; }
+</style>
+<title>ssglib – Getting Started</title>
+</head>
+<body>
+<header><nav class="top">
+<ul>
+<li><a href="/ssglib/" title="Home">ssglib</a></li>
+</ul>
+</nav></header>
+<main>
+<article><h1>Getting Started</h1>
+<p>This guide walks through building a static site from an Obsidian
+vault using ssglib and Pandoc.</p>
+<h2>Prerequisites</h2>
+<ul>
+<li><a href="https://pandoc.org/installing.html">Pandoc</a> with Lua
+support (<code>pandoc-lua</code>)</li>
+<li>An Obsidian vault with markdown files</li>
+</ul>
+<h2>Project Structure</h2>
+<p>A typical ssglib project looks like this:</p>
+<pre><code>my-site/
+├── main.lua        # Site builder script
+├── vault/          # Obsidian vault (markdown source)
+│   ├── index.md
+│   └── about.md
+├── static/         # Static files copied to output
+│   └── .nojekyll
+└── docs/           # Generated output</code></pre>
+<h2>Minimal main.lua</h2>
+<p>Here is a minimal site builder:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">pandoc</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">elements</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.elements&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">vault</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.vault&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">site</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.site&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">filters</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.filters&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="kw">function</span> render<span class="op">(</span><span class="va">vars</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">html</span> <span class="op">=</span> <span class="va">elements</span><span class="op">.</span><span class="va">html</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">elements</span><span class="op">.</span>concat <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">elements</span><span class="op">.</span>raw <span class="st">&quot;&lt;!DOCTYPE html&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="va">html</span><span class="op">.</span>html <span class="op">{</span> <span class="va">lang</span> <span class="op">=</span> <span class="st">&quot;en&quot;</span><span class="op">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="va">html</span><span class="op">.</span>head <span class="op">{</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">html</span><span class="op">.</span>meta <span class="op">{</span> <span class="va">charset</span> <span class="op">=</span> <span class="st">&quot;utf-8&quot;</span> <span class="op">},</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">html</span><span class="op">.</span>title <span class="op">{</span> <span class="va">vars</span><span class="op">.</span><span class="va">title</span> <span class="op">},</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="op">},</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="va">html</span><span class="op">.</span>body <span class="op">{</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">html</span><span class="op">.</span>main <span class="op">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>          <span class="va">html</span><span class="op">.</span>h1 <span class="op">{</span> <span class="va">vars</span><span class="op">.</span><span class="va">title</span> <span class="op">},</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>          <span class="va">elements</span><span class="op">.</span>raw<span class="op">(</span><span class="va">vars</span><span class="op">.</span><span class="va">body</span><span class="op">),</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">},</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      <span class="op">},</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">s</span> <span class="op">=</span> <span class="va">site</span><span class="op">.</span><span class="va">Site</span><span class="op">.</span>new<span class="op">(</span><span class="va">arg</span><span class="op">[</span><span class="dv">2</span><span class="op">])</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">cache_path</span> <span class="op">=</span> <span class="va">s</span><span class="op">:</span>prepare<span class="op">(</span><span class="st">&quot;/.cache.json&quot;</span><span class="op">)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">v</span> <span class="op">=</span> <span class="va">vault</span><span class="op">.</span><span class="va">Vault</span><span class="op">.</span>load<span class="op">(</span><span class="va">arg</span><span class="op">[</span><span class="dv">1</span><span class="op">],</span> <span class="va">cache_path</span><span class="op">)</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">filter</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="va">BlockQuote</span> <span class="op">=</span> <span class="va">filters</span><span class="op">.</span><span class="va">callout_filter</span><span class="op">,</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="va">Link</span> <span class="op">=</span> <span class="va">filters</span><span class="op">.</span>make_link_filter<span class="op">(</span><span class="va">v</span><span class="op">),</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="va">f</span> <span class="kw">in</span> <span class="va">v</span><span class="op">:</span>notes<span class="op">():</span>iter<span class="op">()</span> <span class="cf">do</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">doc</span> <span class="op">=</span> <span class="va">f</span><span class="op">:</span>doc<span class="op">():</span>walk<span class="op">(</span><span class="va">filter</span><span class="op">)</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">vars</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="va">title</span> <span class="op">=</span> <span class="va">f</span><span class="op">:</span>title<span class="op">(),</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="va">body</span> <span class="op">=</span> <span class="va">pandoc</span><span class="op">.</span>write<span class="op">(</span><span class="va">doc</span><span class="op">,</span> <span class="st">&quot;html5&quot;</span><span class="op">),</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="va">s</span><span class="op">:</span>write_data<span class="op">(</span><span class="va">f</span><span class="op">:</span>url<span class="op">(),</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">layout</span><span class="op">.</span>render<span class="op">(</span>render<span class="op">(</span><span class="va">vars</span><span class="op">),</span> <span class="dv">72</span><span class="op">))</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="va">s</span><span class="op">:</span>cleanup<span class="op">()</span></span></code></pre></div>
+<h2>Build Pipeline</h2>
+<p>The build process follows these steps:</p>
+<ol type="1">
+<li><p><strong>Load the vault</strong> – <code>Vault.load()</code> scans
+the vault directory, reads front matter from each note, and caches the
+results.</p></li>
+<li><p><strong>Iterate notes</strong> – <code>Vault:notes()</code>
+returns all markdown files in the vault.</p></li>
+<li><p><strong>Parse and filter</strong> – <code>File:doc()</code>
+parses a note into a Pandoc document. Calling
+<code>doc:walk(filter)</code> applies filters that resolve wikilinks,
+process callouts, and evaluate code blocks.</p></li>
+<li><p><strong>Render HTML</strong> –
+<code>pandoc.write(doc, "html5")</code> converts the filtered document
+to HTML. A render function wraps the content in a full page template
+using the <a href="/ssglib/elements/">Elements</a> module.</p></li>
+<li><p><strong>Write output</strong> – <code>Site:write_data()</code>
+writes the rendered HTML to the output directory. Unchanged files are
+skipped for fast incremental builds.</p></li>
+<li><p><strong>Clean up</strong> – <code>Site:cleanup()</code> removes
+any files in the output directory that were not written during this
+build.</p></li>
+</ol>
+<h2>Running the Build</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pandoc-lua</span> main.lua vault docs</span></code></pre></div>
+<p>To serve locally for development:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> http.server <span class="at">--directory</span> docs</span></code></pre></div>
+<h2>Front Matter</h2>
+<p>Notes can include YAML front matter to control output:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">permalink</span><span class="kw">:</span><span class="at"> about/</span><span class="co">       # Custom URL (default: derived from filename)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> 2025-01-15</span><span class="co">        # Publication date</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hide</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">              # Exclude from contents listings</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;#topic&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<p>If <code>permalink</code> is omitted, the URL is derived from the
+file path with spaces replaced by hyphens and the <code>.md</code>
+extension replaced by <code>/</code>.</p></article>
+</main>
+</body>
+</html>

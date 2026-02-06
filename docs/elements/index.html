@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<style>*, *::before, *::after { box-sizing: border-box; }
+body {
+  color: #111;
+  background-color: #fefefe;
+  max-width: 50rem;
+  padding: 0 1rem 1rem 1rem;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+nav.top ul { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; align-items: end; }
+nav.top li:not(:first-child)::before { display: inline-block; margin: 0 0.25rem; content: "|"; }
+nav.top li:first-child { font-weight: bold; font-size: 1.13em; }
+nav.top a { text-decoration: none; }
+nav.top a:hover { text-decoration: underline; }
+body > header { margin-top: 1.25rem; margin-bottom: 1.7rem; }
+a { color: #0366d6; }
+a:hover { color: #0550ae; }
+pre { background-color: #f6f8fa; padding: 1em; overflow-x: auto; border-radius: 6px; }
+code { font-size: 0.9em; }
+:not(pre) > code { background-color: #f6f8fa; padding: 0.15em 0.3em; border-radius: 3px; }
+article > h1 { margin-bottom: 0.5rem; }
+.callout { border-left: 3px solid #d0d7de; padding: 0.5em 1em; margin: 1em 0; }
+.callout-note { border-left-color: #0366d6; }
+.callout-warning { border-left-color: #d29922; }
+</style>
+<title>ssglib – Elements</title>
+</head>
+<body>
+<header><nav class="top">
+<ul>
+<li><a href="/ssglib/" title="Home">ssglib</a></li>
+</ul>
+</nav></header>
+<main>
+<article><h1>Elements</h1>
+<p>The <code>ssglib.elements</code> module generates HTML and XML using
+Pandoc's layout engine. Elements are created by calling functions on the
+<code>html</code> or <code>xml</code> tables.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">elements</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.elements&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">html</span> <span class="op">=</span> <span class="va">elements</span><span class="op">.</span><span class="va">html</span></span></code></pre></div>
+<h2>Element Functions</h2>
+<p>Access any HTML element as a function on <code>html</code>. The
+function takes a table with attributes (string keys) and content
+(integer keys).</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">html</span><span class="op">.</span>div <span class="op">{</span> <span class="va">class</span> <span class="op">=</span> <span class="st">&quot;container&quot;</span><span class="op">,</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">html</span><span class="op">.</span>h1 <span class="op">{</span> <span class="st">&quot;Hello&quot;</span> <span class="op">},</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">html</span><span class="op">.</span>p <span class="op">{</span> <span class="st">&quot;World&quot;</span> <span class="op">},</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>XML elements work the same way via <code>elements.xml</code>. Empty
+XML elements render as self-closing tags.</p>
+<h2>Attributes</h2>
+<p>String keys in the table become element attributes.</p>
+<ul>
+<li><code>true</code> renders the attribute name only:
+<code>html.input { disabled = true }</code> →
+<code>&lt;input disabled&gt;</code></li>
+<li><code>false</code> omits the attribute entirely</li>
+<li>Single <code>_</code> in key names becomes <code>-</code>:
+<code>data_id</code> → <code>data-id</code></li>
+<li>Double <code>__</code> becomes <code>_</code>: <code>my__var</code>
+→ <code>my_var</code></li>
+</ul>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">html</span><span class="op">.</span>meta <span class="op">{</span> <span class="va">http_equiv</span> <span class="op">=</span> <span class="st">&quot;X-UA-Compatible&quot;</span><span class="op">,</span> <span class="va">content</span> <span class="op">=</span> <span class="st">&quot;IE=edge&quot;</span> <span class="op">}</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- &lt;meta content=&quot;IE=edge&quot; http-equiv=&quot;X-UA-Compatible&quot;&gt;</span></span></code></pre></div>
+<h2>raw(text)</h2>
+<p>Insert raw HTML without escaping. Returns a layout Doc.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">elements</span><span class="op">.</span>raw<span class="op">(</span><span class="st">&quot;&lt;!DOCTYPE html&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">)</span></span></code></pre></div>
+<h2>concat(t, sep)</h2>
+<p>Concatenate a sequence of values with an optional separator. Each
+value is rendered and HTML-escaped (unless it is already a layout
+Doc).</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">elements</span><span class="op">.</span>concat<span class="op">({</span> <span class="st">&quot;one&quot;</span><span class="op">,</span> <span class="st">&quot;two&quot;</span><span class="op">,</span> <span class="st">&quot;three&quot;</span> <span class="op">},</span> <span class="st">&quot;, &quot;</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- &quot;one, two, three&quot;</span></span></code></pre></div>
+<h2>render(value)</h2>
+<p>Render a single value to a layout Doc with HTML escaping.
+<code>false</code> returns an empty Doc, layout Docs pass through
+unchanged, and other values are stringified and escaped.</p>
+<h2>Void Elements</h2>
+<p>HTML void elements like <code>br</code>, <code>img</code>,
+<code>hr</code>, and <code>input</code> have no closing tag and ignore
+content.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="va">html</span><span class="op">.</span>img <span class="op">{</span> <span class="va">src</span> <span class="op">=</span> <span class="st">&quot;photo.jpg&quot;</span><span class="op">,</span> <span class="va">alt</span> <span class="op">=</span> <span class="st">&quot;A photo&quot;</span> <span class="op">}</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- &lt;img alt=&quot;A photo&quot; src=&quot;photo.jpg&quot;&gt;</span></span></code></pre></div>
+<h2>Line Breaks</h2>
+<p>Block-level elements like <code>div</code>, <code>p</code>,
+<code>h1</code>–<code>h6</code>, <code>header</code>, <code>main</code>,
+<code>article</code>, and others automatically insert line breaks before
+and after their tags for readable output.</p></article>
+</main>
+</body>
+</html>

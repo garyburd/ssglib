@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<style>*, *::before, *::after { box-sizing: border-box; }
+body {
+  color: #111;
+  background-color: #fefefe;
+  max-width: 50rem;
+  padding: 0 1rem 1rem 1rem;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+nav.top ul { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; align-items: end; }
+nav.top li:not(:first-child)::before { display: inline-block; margin: 0 0.25rem; content: "|"; }
+nav.top li:first-child { font-weight: bold; font-size: 1.13em; }
+nav.top a { text-decoration: none; }
+nav.top a:hover { text-decoration: underline; }
+body > header { margin-top: 1.25rem; margin-bottom: 1.7rem; }
+a { color: #0366d6; }
+a:hover { color: #0550ae; }
+pre { background-color: #f6f8fa; padding: 1em; overflow-x: auto; border-radius: 6px; }
+code { font-size: 0.9em; }
+:not(pre) > code { background-color: #f6f8fa; padding: 0.15em 0.3em; border-radius: 3px; }
+article > h1 { margin-bottom: 0.5rem; }
+.callout { border-left: 3px solid #d0d7de; padding: 0.5em 1em; margin: 1em 0; }
+.callout-note { border-left-color: #0366d6; }
+.callout-warning { border-left-color: #d29922; }
+</style>
+<title>ssglib – Paths</title>
+</head>
+<body>
+<header><nav class="top">
+<ul>
+<li><a href="/ssglib/" title="Home">ssglib</a></li>
+</ul>
+</nav></header>
+<main>
+<article><h1>Paths</h1>
+<p>The <code>ssglib.paths</code> module provides file path conversion
+utilities and filesystem operations.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">paths</span> <span class="op">=</span> <span class="fu">require</span> <span class="st">&quot;ssglib.paths&quot;</span></span></code></pre></div>
+<h2>posix_path(s)</h2>
+<p>Convert a system path to POSIX format by replacing the system
+separator with <code>/</code>. On POSIX systems, this is a no-op.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>posix_path<span class="op">(</span><span class="st">&quot;articles</span><span class="sc">\\</span><span class="st">hello.md&quot;</span><span class="op">)</span>  <span class="co">-- &quot;articles/hello.md&quot;</span></span></code></pre></div>
+<h2>system_path(s)</h2>
+<p>Convert a POSIX path to the system-native separator format.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>system_path<span class="op">(</span><span class="st">&quot;articles/hello.md&quot;</span><span class="op">)</span>  <span class="co">-- &quot;articles\\hello.md&quot; (on Windows)</span></span></code></pre></div>
+<h2>is_local_path(url)</h2>
+<p>Check whether a URL is a local vault path. URLs with a scheme
+(<code>http://</code>, <code>file://</code>, etc.) or host prefix
+(<code>//</code>) are not local.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>is_local_path<span class="op">(</span><span class="st">&quot;Hello World&quot;</span><span class="op">)</span>       <span class="co">-- true</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>is_local_path<span class="op">(</span><span class="st">&quot;https://example.com&quot;</span><span class="op">)</span>  <span class="co">-- false</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>is_local_path<span class="op">(</span><span class="st">&quot;//cdn.example.com&quot;</span><span class="op">)</span>    <span class="co">-- false</span></span></code></pre></div>
+<h2>file_mtime(path)</h2>
+<p>Return the modification time of a file as an ISO 8601 string. Returns
+<code>""</code> if the file does not exist.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>file_mtime<span class="op">(</span><span class="st">&quot;vault/index.md&quot;</span><span class="op">)</span>  <span class="co">-- &quot;2025-01-15T10:30:00Z&quot;</span></span></code></pre></div>
+<h2>walk_tree(root, fn)</h2>
+<p>Recursively walk a directory tree, calling <code>fn(path)</code> for
+each file. Directories and files starting with <code>.</code> are
+skipped.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="va">paths</span><span class="op">.</span>walk_tree<span class="op">(</span><span class="st">&quot;vault&quot;</span><span class="op">,</span> <span class="kw">function</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span><span class="op">)</span></span></code></pre></div></article>
+</main>
+</body>
+</html>

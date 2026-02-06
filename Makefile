@@ -1,4 +1,5 @@
 
+export LUA_PATH := ssglib/?.lua;;
 
 .PHONY: test
 

@@ -13,6 +13,7 @@ end
 --- Manage output directory for static website generation.
 --- @class Site
 --- @field root string Root directory path for output
+--- @field base string URL base path (e.g., "/" or "/ssglib/")
 --- @field files table<string, boolean> Set of accessed file paths
 --- @field updated integer Number of files updated in the site
 --- @field total integer Total number of files written to site
@@ -21,10 +22,14 @@ Site.__index = Site
 
 --- Create a new Site instance.
 --- @param root string Root directory path for output
+--- @param base string | nil URL base path (default "/"), must start and end with "/"
 --- @return Site site New site instance
-function Site.new(root)
+function Site.new(root, base)
+  base = base or "/"
+  assert(base:sub(1, 1) == "/" and base:sub(-1) == "/", "base must start and end with /")
   local site = setmetatable({
     root = root,
+    base = base,
     files = {},
     updated = 0,
     total = 0,
@@ -42,7 +47,9 @@ function Site:prepare(url)
   assert(getmetatable(self) == Site)
   self.total = self.total + 1
   url = url:gsub("/$", "/index.html")
-  local path = pandoc.path.join { self.root, paths.system_path(url:sub(2)) }
+  assert(url:sub(1, #self.base) == self.base, "url must start with base")
+  url = url:sub(#self.base + 1)
+  local path = pandoc.path.join { self.root, paths.system_path(url) }
   self.files[path] = true
   pandoc.system.make_directory(pandoc.path.directory(path), true)
   return path

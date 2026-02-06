@@ -442,6 +442,45 @@ local cache_tests = {
 }
 
 -- ============================================================================
+-- Base URL Tests
+-- ============================================================================
+
+local base_url_tests = {
+  "url with custom base",
+  function()
+    pandoc.system.with_temporary_directory("base-url-test", function(tmpdir)
+      pandoc.system.write_file(pandoc.path.join({ tmpdir, "simple.md" }), "# Simple")
+      local v = vault.Vault.load(tmpdir, nil, "/ssglib/")
+      local f = v:get("simple.md")
+      assert_not_nil(f)
+      assert_equals(f:url(), "/ssglib/simple/")
+    end)
+  end,
+
+  "url with custom base and permalink",
+  function()
+    pandoc.system.with_temporary_directory("base-url-test2", function(tmpdir)
+      pandoc.system.write_file(pandoc.path.join({ tmpdir, "page.md" }), "---\npermalink: /custom/\n---\n# Page")
+      local v = vault.Vault.load(tmpdir, nil, "/ssglib/")
+      local f = v:get("page.md")
+      assert_not_nil(f)
+      assert_equals(f:url(), "/ssglib/custom/")
+    end)
+  end,
+
+  "url with default base unchanged",
+  function()
+    pandoc.system.with_temporary_directory("base-url-test3", function(tmpdir)
+      pandoc.system.write_file(pandoc.path.join({ tmpdir, "simple.md" }), "# Simple")
+      local v = vault.Vault.load(tmpdir, nil)
+      local f = v:get("simple.md")
+      assert_not_nil(f)
+      assert_equals(f:url(), "/simple/")
+    end)
+  end,
+}
+
+-- ============================================================================
 -- Run All Tests
 -- ============================================================================
 
@@ -458,6 +497,7 @@ end)
 ok = test.run_tests("vault", {
   "format_date", format_date_tests,
   "cache", cache_tests,
+  "base_url", base_url_tests,
 }) and ok
 
 if not ok then
