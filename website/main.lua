@@ -61,10 +61,10 @@ end
 local Builder = {}
 Builder.__index = Builder
 
-function Builder.new(vault_path, site_path)
+function Builder.new(vault_dir, site_path)
   local s = site.Site.new(site_path, base)
-  local cache_path = s:prepare(base .. ".cache.json")
-  local v = vault.Vault.load(vault_path, cache_path, base)
+  local cache_file = s:prepare(base .. ".cache.json")
+  local v = vault.Vault.load(vault_dir, cache_file, base)
   local self = setmetatable({ vault = v, site = s }, Builder)
   self.filter = {
     BlockQuote = filters.callout_filter,

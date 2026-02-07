@@ -56,8 +56,8 @@ local function render(vars)
 end
 
 local s = site.Site.new(arg[2])
-local cache_path = s:prepare("/.cache.json")
-local v = vault.Vault.load(arg[1], cache_path)
+local cache_file = s:prepare("/.cache.json")
+local v = vault.Vault.load(arg[1], cache_file)
 
 local filter = {
   BlockQuote = filters.callout_filter,

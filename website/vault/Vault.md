@@ -10,13 +10,19 @@ The `ssglib.vault` module reads an Obsidian vault directory, caches file metadat
 local vault = require "ssglib.vault"
 ```
 
-## Vault.load(vault_path, cache_path)
+## Vault.load(vault_dir, cache_file, base)
 
-Load a vault from `vault_path`. File metadata is cached at `cache_path` to speed up subsequent builds. Only files whose modification time has changed are re-read.
+Load a vault from `vault_dir`. File metadata is cached at `cache_file` to speed up subsequent builds. Only files whose modification time has changed are re-read. The optional `base` parameter sets the URL base path (default `"/"`); it must start and end with `"/"`.
 
 ```lua
 local v = vault.Vault.load("vault", "docs/.cache.json")
+local v = vault.Vault.load("vault", "docs/.cache.json", "/blog/")
 ```
+
+### Fields
+
+- `dir` – Root directory path of the vault
+- `base` – URL base path (e.g., `"/"` or `"/blog/"`)
 
 ## Vault:get(path)
 
@@ -46,9 +52,13 @@ A `File` represents a single file in the vault.
 ### Fields
 
 - `path` – Vault-relative path in POSIX format (e.g., `"articles/Hello World.md"`)
-- `file_path` – Absolute file system path
+- `vault` – The `Vault` containing this file
 - `mtime` – Modification time in ISO 8601 format
 - `properties` – Table of file metadata from front matter or image headers
+
+### File:file()
+
+Returns the file system path for the file, computed from `vault.dir` and `path`.
 
 ### File:type()
 

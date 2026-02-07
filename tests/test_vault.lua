@@ -171,6 +171,30 @@ local function vault_tests(v)
     },
 
     -- ========================================================================
+    -- File System Path Tests
+    -- ========================================================================
+    "file_path",
+    {
+      "file returns filesystem path",
+      function()
+        local f = v:get("simple.md")
+        assert_equals(f:file(), pandoc.path.join({ v.dir, "simple.md" }))
+      end,
+
+      "file returns filesystem path for nested file",
+      function()
+        local f = v:get("subdir/nested.md")
+        assert_equals(f:file(), pandoc.path.join({ v.dir, "subdir", "nested.md" }))
+      end,
+
+      "file returns filesystem path for image",
+      function()
+        local f = v:get("test.jpg")
+        assert_equals(f:file(), pandoc.path.join({ v.dir, "test.jpg" }))
+      end,
+    },
+
+    -- ========================================================================
     -- File Title Tests
     -- ========================================================================
     "file_title",
@@ -334,6 +358,23 @@ local function vault_tests(v)
     },
 
     -- ========================================================================
+    -- Vault Properties Tests
+    -- ========================================================================
+    "vault_properties",
+    {
+      "vault root is set",
+      function()
+        assert_not_nil(v.dir)
+      end,
+
+      "file has vault reference",
+      function()
+        local f = v:get("simple.md")
+        assert_equals(f.vault, v)
+      end,
+    },
+
+    -- ========================================================================
     -- Vault Query Tests
     -- ========================================================================
     "vault_queries",
@@ -417,14 +458,14 @@ local cache_tests = {
     pandoc.system.with_temporary_directory("cache-test", function(tmpdir)
       pandoc.system.write_file(pandoc.path.join({ tmpdir, "note.md" }), "# Test")
 
-      local cache_path = pandoc.path.join({ tmpdir, "cache.json" })
+      local cache_file = pandoc.path.join({ tmpdir, "cache.json" })
 
       -- Load vault (creates cache)
-      local v1 = vault.Vault.load(tmpdir, cache_path)
+      local v1 = vault.Vault.load(tmpdir, cache_file)
       assert_not_nil(v1:get("note.md"))
 
       -- Load again (uses cache)
-      local v2 = vault.Vault.load(tmpdir, cache_path)
+      local v2 = vault.Vault.load(tmpdir, cache_file)
       assert_not_nil(v2:get("note.md"))
       assert_equals(v2:get("note.md").path, "note.md")
     end)

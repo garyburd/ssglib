@@ -148,7 +148,7 @@ local function make_image_filter(vault, site)
     local url = file:url()
     img.src = url
     local attrs = img.attributes
-    attrs.srcset = write_responsive_image(site, url, file.file_path, file.mtime, file.properties.width)
+    attrs.srcset = write_responsive_image(site, url, file:file(), file.mtime, file.properties.width)
     attrs.width = file.properties.width
     attrs.height = file.properties.height
     if attrs.srcset then

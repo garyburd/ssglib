@@ -278,8 +278,7 @@ end
 --- Represents a file in the vault with its path, modification time, and metadata.
 --- @class File
 --- @field path string Relative path from vault root (POSIX format)
---- @field file_path string File system path
---- @field base string URL base path (e.g., "/" or "/ssglib/")
+--- @field vault Vault The vault containing this file
 --- @field mtime string File modification timestamp in ISO 8601 format
 --- @field properties table File-specific metadata (e.g., YAML front matter, image dimensions)
 local File = {}
@@ -303,6 +302,13 @@ function File:title()
   return self.path:sub(s, e)
 end
 
+--- Get the file system path for the file.
+--- @return string file_path
+function File:file()
+  assert(getmetatable(self) == File)
+  return pandoc.path.join({ self.vault.dir, paths.system_path(self.path) })
+end
+
 --- Get the URL for the file.
 --- @return string url
 function File:url()
@@ -312,14 +318,14 @@ function File:url()
     url = self.path:gsub(".md$", "/"):gsub(" ", "-"):gsub("--+", "-")
   end
   assert(not url:find("//"))
-  return self.base .. url
+  return self.vault.base .. url
 end
 
 --- Parse document from file
 --- @return table pandoc.Doc
 function File:doc()
   assert(getmetatable(self) == File)
-  local doc = pandoc.read(pandoc.system.read_file(self.file_path), note_format)
+  local doc = pandoc.read(pandoc.system.read_file(self:file()), note_format)
   doc = doc:walk { Inlines = image_link_filter }
   return doc
 end
@@ -388,7 +394,7 @@ end
 
 --- Represents a vault (collection of files).
 --- @class Vault
---- @field path string Root directory path of the vault
+--- @field dir string Root directory path of the vault
 --- @field base string URL base path (e.g., "/" or "/ssglib/")
 --- @field files table<string, File> Dictionary mapping relative paths to File objects.
 --- @field _notes_list pandoc.List | nil Sequence of files.
@@ -396,36 +402,35 @@ local Vault = {}
 Vault.__index = Vault
 
 --- Create and load a vault by scanning files and reading metadata cache.
---- @param vault_path string Root directory of the vault
---- @param cache_path string  | nil Path to metadata cache file
+--- @param vault_dir string Root directory of the vault
+--- @param cache_file string  | nil Path to metadata cache file
 --- @param base string | nil URL base path (default "/"), must start and end with "/"
 --- @return Vault vault Loaded vault with all files scanned
-function Vault.load(vault_path, cache_path, base)
-  assert(vault_path)
+function Vault.load(vault_dir, cache_file, base)
+  assert(vault_dir)
   base = base or "/"
   assert(base:sub(1, 1) == "/" and base:sub(-1) == "/", "base must start and end with /")
   local v = setmetatable({}, Vault)
-  v.path = vault_path
+  v.dir = vault_dir
   v.base = base
   v.files = {}
-  v:_scan(cache_path)
+  v:_scan(cache_file)
   return v
 end
 
 --- Scan vault directory and update file metadata.
 --- Uses cache for unchanged files, re-read metadata for modified files.
---- @param cache_path string | nil Path to metadata cache file
-function Vault:_scan(cache_path)
-  local files = cache_path and read_metadata_cache(cache_path) or {}
+--- @param cache_file string | nil Path to metadata cache file
+function Vault:_scan(cache_file)
+  local files = cache_file and read_metadata_cache(cache_file) or {}
   local total, updated = 0, 0
-  paths.walk_tree(self.path, function(file_path)
-    local path = paths.posix_path(pandoc.path.make_relative(file_path, self.path))
+  paths.walk_tree(self.dir, function(file_path)
+    local path = paths.posix_path(pandoc.path.make_relative(file_path, self.dir))
     local mtime = paths.file_mtime(file_path)
     local file = files[path]
     total = total + 1
     if file and file.mtime == mtime then
-      file.file_path = file_path
-      file.base = self.base
+      file.vault = self
       self.files[path] = setmetatable(file, File)
       return
     end
@@ -433,14 +438,13 @@ function Vault:_scan(cache_path)
     updated = updated + 1
     self.files[path] = setmetatable({
       path = path,
-      file_path = file_path,
-      base = self.base,
+      vault = self,
       mtime = mtime,
       properties = properties,
     }, File)
   end)
-  if cache_path then
-    write_metadata_cache(cache_path, self.files)
+  if cache_file then
+    write_metadata_cache(cache_file, self.files)
   end
   info("Vault: total=%d, updated=%d", total, updated)
 end
