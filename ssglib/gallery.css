@@ -1,0 +1,178 @@
+/* Gallery figures use layout-mode classes. Fenced divs become SmugMug-style
+   collages; standalone images become `.gallery.single`; other content becomes
+   `<figcaption>`. CSS lays out equal-height, uncropped rows by scaling each
+   link's flex basis and growth with `--aspect-ratio`; `--gallery-row` sets the
+   target height. gallery.js refines the final row and opens lightboxes. Without
+   JavaScript, each link opens the full image. */
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 2.5em 0;
+}
+.gallery > a {
+  display: block;
+  cursor: zoom-in;
+  /* Scaling growth by 1000 keeps every row's sum above 1. Otherwise flexbox
+     assigns only that fraction of free space; uniform scaling preserves ratios. */
+  flex-grow: calc(var(--aspect-ratio, 1) * 1000);
+  flex-basis: calc(var(--aspect-ratio, 1) * var(--gallery-row, 20rem));
+}
+.gallery > a > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Put the caption on a full-width final row. `order: 1` places the order-0
+   phantom before it, at the end of the final tile row, while preserving the
+   DOM's visual reading order. */
+.gallery > figcaption {
+  flex-basis: 100%;
+  order: 1;
+}
+
+/* A high-growth phantom absorbs space in the only incomplete row, keeping its
+   tiles compact and left-aligned.
+
+   A 25% basis claims the row only when that much width remains; full rows push
+   the phantom to a zero-height row. gallery.js overrides the phantom values so
+   final-row tiles match the preceding row. */
+.gallery::after {
+  content: "";
+  flex-basis: var(--phantom-basis, 25%);
+  /* Must dwarf the 1000-scaled tile growth. */
+  flex-grow: var(--phantom-grow, 10000000);
+}
+
+/* `--gallery-row` controls target height and thus tile size and count.
+   Landscape uses larger, sparser rows; portrait uses denser rows.
+
+   `--gallery-column` is the content width as a unitless rem count because
+   `calc()` cannot divide by a length (e.g. `:root { --gallery-column: 53; }`).
+   Percentages scale row targets below that width, preserving row structure.
+   The fallback assumes ~55rem; `min()` caps rows on wider pages. */
+.gallery.collage-landscape { --gallery-row: min(20rem, calc(100% * 20 / var(--gallery-column, 55))); }
+.gallery.collage-portrait  { --gallery-row: min(12rem, calc(100% * 12 / var(--gallery-column, 55))); }
+
+/* For single images, a 100% row fills the column without growing taller than
+   its width. A zero-basis phantom keeps portrait tiles from stretching; JS
+   leaves these one-row galleries to CSS. */
+.gallery.single {
+  --gallery-row: 100%;
+  --phantom-basis: 0%;
+}
+
+/* gallery.js builds this full-screen, horizontal scroll-snap dialog. */
+
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background-color: black;
+  z-index: 999;
+}
+
+.lightbox-scroller {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.lightbox-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.lightbox-slide {
+  display: flex;
+  flex: 0 0 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.lightbox-slide > img {
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+}
+
+.lightbox-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 2.5rem 1.25rem 1rem;
+  color: #fff;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  pointer-events: none; /* Let clicks close the lightbox. */
+}
+
+/* Translucent circular lightbox controls. */
+.lightbox > button {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 300ms ease;
+  z-index: 10;
+}
+
+.lightbox > button:hover {
+  opacity: 1;
+}
+
+.lightbox-close {
+  right: 0.75rem;
+  top: 0.5rem;
+}
+
+.lightbox-prev {
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-next {
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (hover: none) {
+  .lightbox > .lightbox-prev, .lightbox > .lightbox-next { display: none; }
+}
