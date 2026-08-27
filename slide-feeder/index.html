@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gravity-rail 35mm slide feeder — LEGO Technic</title>
+  <style>
+    :root {
+      --paper: #f3eee4;
+      --paper-2: #e8e0d2;
+      --ink: #1c1814;
+      --muted: #6a6258;
+      --line: #cfc4b3;
+      --accent: #9a3412;
+      --accent-2: #c2410c;
+      --beam: #4b5563;
+      --beam-2: #6b7280;
+      --slide: #f4ead3;
+      --slide-edge: #c4b394;
+      --film: #1e3a5f;
+      --ok: #3f6212;
+      --warn: #92400e;
+      --shadow: 0 18px 40px rgba(28, 24, 20, 0.08);
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+    header.hero {
+      padding: 2.5rem 1.5rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header.hero p.kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.6rem;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(2rem, 5vw, 3.1rem);
+      line-height: 1.1;
+      margin: 0 0 0.8rem;
+      letter-spacing: -0.02em;
+    }
+    .lede {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 42rem;
+      margin: 0;
+    }
+    nav.toc {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--paper) 88%, white);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    nav.toc ul {
+      display: flex;
+      gap: 0.2rem;
+      list-style: none;
+      margin: 0 auto;
+      padding: 0.55rem 1.5rem;
+      max-width: 1100px;
+      overflow-x: auto;
+    }
+    nav.toc a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    nav.toc a:hover { color: var(--ink); background: var(--paper-2); }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    section { margin: 2.8rem 0 3.2rem; }
+    h2 {
+      font-family: var(--serif);
+      font-size: 1.85rem;
+      margin: 0 0 0.8rem;
+      letter-spacing: -0.015em;
+    }
+    h3 {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      margin: 1.6rem 0 0.5rem;
+    }
+    p { margin: 0.7rem 0; }
+    a { color: var(--accent); }
+    .panel {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper-2);
+    }
+    .panel-head h3 { margin: 0; font-size: 1.05rem; }
+    .phase-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .controls { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    button {
+      font: inherit;
+      font-size: 0.85rem;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      cursor: pointer;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--ink);
+    }
+    button:hover { opacity: 0.88; }
+    .stage { padding: 0.4rem 0.4rem 0; background: #ece6da; }
+    svg.machine { display: block; width: 100%; height: auto; }
+    .caption {
+      padding: 0.85rem 1.1rem 1.05rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .caption strong { color: var(--ink); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.45rem 0.55rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .callout {
+      border-left: 3px solid var(--accent);
+      padding: 0.2rem 0 0.2rem 1rem;
+      margin: 1rem 0;
+      color: var(--muted);
+    }
+    .callout strong { color: var(--ink); }
+    ul.plain { padding-left: 1.2rem; }
+    ul.plain li { margin: 0.3rem 0; }
+    .dims { font-family: var(--mono); font-size: 0.84rem; color: var(--accent); }
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 3rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    code { font-family: var(--mono); font-size: 0.86em; }
+    .legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0.6rem 1rem 0;
+    }
+    .legend span { display: flex; align-items: center; gap: 0.35rem; }
+    .swatch {
+      width: 12px; height: 12px; border-radius: 2px;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    ol.build { padding-left: 1.3rem; }
+    ol.build li { margin: 0.55rem 0; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <p class="kicker">LEGO Technic shop drawing</p>
+    <h1>Gravity-rail 35mm slide feeder</h1>
+    <p class="lede">
+      A bottom-of-stack linear shuttle on Technic beams. The smooth face of each beam is the running surface.
+      One lever throw seats the next slide in the photography gate and drops the previous slide into a bin.
+    </p>
+  </header>
+  <nav class="toc">
+    <ul>
+      <li><a href="#cycle">Cycle</a></li>
+      <li><a href="#why">Why this</a></li>
+      <li><a href="#geometry">Geometry</a></li>
+      <li><a href="#sub">Sub-assemblies</a></li>
+      <li><a href="#bom">Parts</a></li>
+      <li><a href="#build">Build</a></li>
+      <li><a href="#tune">Tune</a></li>
+    </ul>
+  </nav>
+  <main>
+    <section id="cycle">
+      <h2>One throw, one frame</h2>
+      <p>
+        The camera looks down. The light looks up. The slide sits on two rails and never has to be touched.
+        Gravity keeps the magazine stacked on the rails and walks the outgoing slide down a ramp.
+        The lever only has to push 56&nbsp;mm — one slide plus a little overtravel.
+      </p>
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="phase-label" id="phaseTag">Phase 0 · ready</div>
+            <h3 id="phaseTitle">Slide seated in the gate. Photograph now.</h3>
+          </div>
+          <div class="controls">
+            <button type="button" id="btnPlay">Play cycle</button>
+            <button type="button" class="ghost" id="btnStep">Step</button>
+            <button type="button" class="ghost" id="btnReset">Reset</button>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:#4b5563"></i> Technic beam (smooth face up)</span>
+          <span><i class="swatch" style="background:#f4ead3"></i> Slide mount</span>
+          <span><i class="swatch" style="background:#1e3a5f"></i> Film</span>
+          <span><i class="swatch" style="background:#9a3412"></i> Pusher blade</span>
+        </div>
+        <div class="stage">
+          <svg class="machine" id="machine" viewBox="0 0 980 430" role="img" aria-label="Side view of the slide feeder">
+            <defs>
+              <linearGradient id="gLight" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stop-color="#fde68a" stop-opacity="0.95"/>
+                <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="gFilm" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#1e3a5f"/>
+                <stop offset="0.5" stop-color="#3b82f6"/>
+                <stop offset="1" stop-color="#0f172a"/>
+              </linearGradient>
+              <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#1c1814" flood-opacity="0.18"/>
+              </filter>
+            </defs>
+            <!-- table -->
+            <rect x="0" y="0" width="980" height="430" fill="#ece6da"/>
+            <rect x="30" y="318" width="920" height="18" rx="2" fill="#b7ab96"/>
+            <text x="40" y="400" fill="#6a6258" font-size="11" font-family="ui-monospace,monospace">2° downhill on the gate rails  ·  ~37° exit ramp  ·  camera looking down  ·  light looking up</text>
+
+            <!-- light well -->
+            <rect id="lightGlow" x="428" y="248" width="118" height="70" fill="url(#gLight)"/>
+            <rect x="430" y="300" width="114" height="16" rx="2" fill="#1c1814"/>
+            <text x="487" y="312" fill="#fde68a" font-size="9" text-anchor="middle" font-family="ui-sans-serif,sans-serif">LED + diffuser</text>
+
+            <!-- camera -->
+            <g id="camera" transform="translate(470,18)">
+              <rect x="20" y="0" width="54" height="36" rx="4" fill="#1c1814"/>
+              <rect x="34" y="36" width="26" height="18" rx="3" fill="#1c1814"/>
+              <circle cx="47" cy="58" r="10" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+              <text x="47" y="-6" fill="#6a6258" font-size="10" text-anchor="middle" font-family="ui-sans-serif,sans-serif">copy-stand camera</text>
+            </g>
+            <line x1="487" y1="78" x2="487" y2="248" stroke="#9a3412" stroke-dasharray="3 4" stroke-width="1.2"/>
+
+            <!-- labels -->
+            <text x="168" y="92" fill="#6a6258" font-size="11" font-family="ui-sans-serif,sans-serif">magazine cassette</text>
+            <text x="458" y="150" fill="#6a6258" font-size="11" font-family="ui-sans-serif,sans-serif">gate</text>
+            <text x="640" y="168" fill="#6a6258" font-size="11" font-family="ui-sans-serif,sans-serif">exit ramp</text>
+            <text x="820" y="210" fill="#6a6258" font-size="11" font-family="ui-sans-serif,sans-serif">catch bin</text>
+
+            <!-- magazine walls -->
+            <rect x="118" y="108" width="10" height="168" fill="#4b5563"/>
+            <rect x="268" y="108" width="10" height="132" fill="#4b5563"/>
+            <rect x="118" y="108" width="160" height="10" fill="#6b7280"/>
+            <!-- throat lip -->
+            <rect id="lip" x="268" y="248" width="18" height="8" fill="#1c1814"/>
+
+            <!-- rails: magazine+gate -->
+            <rect x="118" y="276" width="430" height="12" rx="1" fill="#4b5563"/>
+            <rect x="118" y="276" width="430" height="3" fill="#9aa3af"/>
+            <!-- ramp -->
+            <polygon points="548,276 548,288 748,368 748,356" fill="#4b5563"/>
+            <polygon points="548,276 748,356 748,353 548,276" fill="#9aa3af"/>
+
+            <!-- bin -->
+            <path d="M748 356 L748 388 L910 388 L910 300 L880 300 L880 356 Z" fill="none" stroke="#78716c" stroke-width="3"/>
+            <rect x="752" y="370" width="154" height="16" fill="#d6d3d1"/>
+            <text x="829" y="382" fill="#57534e" font-size="9" text-anchor="middle">felt</text>
+
+            <!-- retard tyre -->
+            <g id="retard" transform="translate(262,236)">
+              <circle r="12" fill="#1c1814"/>
+              <circle r="6" fill="#78716c"/>
+            </g>
+
+            <!-- pusher -->
+            <g id="pusher">
+              <rect x="86" y="262" width="70" height="14" rx="2" fill="#9a3412"/>
+              <rect x="148" y="256" width="18" height="8" fill="#c2410c"/>
+              <text x="118" y="256" fill="#9a3412" font-size="9" text-anchor="middle" font-family="ui-sans-serif,sans-serif">blade</text>
+            </g>
+
+            <!-- lever -->
+            <g id="lever" transform="translate(90,318)">
+              <circle r="6" fill="#1c1814"/>
+              <rect id="leverArm" x="-6" y="-78" width="12" height="78" rx="4" fill="#1c1814" transform="rotate(-28)"/>
+              <circle id="leverKnob" cx="0" cy="0" r="8" fill="#c2410c" transform="rotate(-28) translate(0,-82)"/>
+            </g>
+            <text x="58" y="350" fill="#6a6258" font-size="10">lever</text>
+
+            <!-- slides live in #slides -->
+            <g id="slides"></g>
+
+            <!-- aperture outline -->
+            <rect x="438" y="248" width="100" height="28" fill="none" stroke="#9a3412" stroke-width="1.2" stroke-dasharray="4 3"/>
+            <text x="488" y="242" fill="#9a3412" font-size="9" text-anchor="middle" font-family="ui-monospace,monospace">24×36 window</text>
+          </svg>
+        </div>
+        <div class="caption" id="phaseCaption">
+          <strong>Ready.</strong> Slide N is registered in the gate. The stack sits on the rails by gravity. Throw the lever only after the shutter is done.
+        </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <h2>Why a shuttle on beams, not a tight tube</h2>
+      <p>
+        A 50&nbsp;mm slide is 6.25 Technic modules. A 6-module channel is 48&nbsp;mm and binds.
+        A 7-module channel is 56&nbsp;mm and rattles. A homemade feeder that tries to be a 50&nbsp;mm
+        tube jams on the first proud label.
+      </p>
+      <div class="grid-2">
+        <div class="panel" style="padding:1rem 1.1rem">
+          <h3 style="margin-top:0">Three jobs, three features</h3>
+          <table>
+            <thead><tr><th>Job</th><th>Feature</th></tr></thead>
+            <tbody>
+              <tr><td>Carry</td><td>Two beams, <strong>smooth face up</strong>, 6M centerlines</td></tr>
+              <tr><td>Keep on the rails</td><td>Loose 56&nbsp;mm fences + a rubber side spring</td></tr>
+              <tr><td>Register for the photo</td><td>Pusher stroke locates the rear edge; spring locates one side</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel" style="padding:1rem 1.1rem">
+          <h3 style="margin-top:0">Gravity’s actual jobs</h3>
+          <ul class="plain">
+            <li>Holds the cassette stack down on the rails so the blade can pick the bottom slide.</li>
+            <li>A 3.2&nbsp;mm drop over ~8 modules (~2°) stops the gated slide following the blade home.</li>
+            <li>A 3–4–5 triangle ramp (~37°) walks the outgoing slide into the bin without a trap door.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="callout">
+        <strong>Do not feed along the 36&nbsp;mm axis.</strong>
+        The mount border there is only 7&nbsp;mm, narrower than a 7.8&nbsp;mm beam.
+        Rails would sit under the film and vignette the backlight.
+        Feed along the 24&nbsp;mm axis so the rails live on the 13&nbsp;mm borders.
+        Rotate portrait/landscape later in software.
+      </p>
+    </section>
+
+    <section id="geometry">
+      <h2>Geometry</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Top view · rail spacing</h3><span class="dims">mm, looking down</span></div>
+          <svg viewBox="0 0 520 340" class="machine" aria-label="Top view of rails and slide">
+            <defs>
+              <linearGradient id="gFilmTop" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#1e3a5f"/>
+                <stop offset="0.5" stop-color="#3b82f6"/>
+                <stop offset="1" stop-color="#0f172a"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="340" fill="#fffdf8"/>
+            <!-- rails -->
+            <rect x="70" y="70" width="380" height="36" fill="#4b5563"/>
+            <rect x="70" y="70" width="380" height="8" fill="#9aa3af"/>
+            <rect x="70" y="234" width="380" height="36" fill="#4b5563"/>
+            <rect x="70" y="262" width="380" height="8" fill="#9aa3af"/>
+            <!-- slide -->
+            <g transform="translate(160,95)">
+              <rect width="200" height="150" fill="#f4ead3" stroke="#a8a29e" stroke-width="1.5"/>
+              <rect x="28" y="12" width="144" height="96" fill="url(#gFilmTop)"/>
+              <text x="100" y="64" fill="#e2e8f0" font-size="12" text-anchor="middle" font-family="ui-sans-serif,sans-serif">24 × 36 film</text>
+              <text x="100" y="140" fill="#57534e" font-size="11" text-anchor="middle">50 × 50 mount</text>
+            </g>
+            <!-- dim: centerlines -->
+            <line x1="40" y1="88" x2="40" y2="252" stroke="#9a3412" stroke-width="1"/>
+            <polyline points="34,88 40,88 46,88" stroke="#9a3412" fill="none"/>
+            <polyline points="34,252 40,252 46,252" stroke="#9a3412" fill="none"/>
+            <text x="28" y="176" fill="#9a3412" font-size="11" transform="rotate(-90 28,176)" font-family="ui-monospace,monospace">48 mm = 6M</text>
+            <!-- dim inner clear -->
+            <line x1="480" y1="106" x2="480" y2="234" stroke="#9a3412" stroke-width="1"/>
+            <text x="508" y="176" fill="#9a3412" font-size="11" transform="rotate(90 508,176)" font-family="ui-monospace,monospace">40.2 mm clear</text>
+            <text x="260" y="48" fill="#6a6258" font-size="12" text-anchor="middle" font-family="ui-sans-serif,sans-serif">feed direction → along the 24 mm axis</text>
+            <text x="260" y="320" fill="#6a6258" font-size="11" text-anchor="middle">~5 mm of mount sits on each rail · film stays in the gap</text>
+          </svg>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Section · one rail</h3><span class="dims">beam rotated 90°</span></div>
+          <svg viewBox="0 0 520 340" class="machine" aria-label="Cross section of a Technic rail">
+            <rect width="520" height="340" fill="#fffdf8"/>
+            <!-- slide remnant -->
+            <rect x="80" y="70" width="360" height="22" fill="#f4ead3" stroke="#a8a29e"/>
+            <text x="260" y="86" fill="#57534e" font-size="12" text-anchor="middle">mount underside</text>
+            <!-- beam -->
+            <g transform="translate(200,92)">
+              <rect x="0" y="0" width="120" height="120" fill="#4b5563"/>
+              <rect x="0" y="0" width="120" height="14" fill="#d1d5db"/>
+              <text x="60" y="24" fill="#1c1814" font-size="11" text-anchor="middle">SMOOTH FACE</text>
+              <circle cx="60" cy="60" r="28" fill="#ece6da" stroke="#1c1814" stroke-width="3"/>
+              <text x="60" y="64" fill="#1c1814" font-size="11" text-anchor="middle">hole →</text>
+              <text x="60" y="150" fill="#6a6258" font-size="12" text-anchor="middle">7.8 × 7.8 mm beam</text>
+            </g>
+            <text x="80" y="250" fill="#6a6258" font-size="13">Holes run sideways. Pins only on the outboard face.</text>
+            <text x="80" y="272" fill="#6a6258" font-size="13">Inner pin heads will snag slides — do not put any there.</text>
+            <text x="80" y="302" fill="#9a3412" font-size="13" font-family="ui-monospace,monospace">If cardboard chatters, the hole face is up. Rotate the beam.</text>
+          </svg>
+        </div>
+      </div>
+
+      <h3>Numbers worth taping to the bench</h3>
+      <table>
+        <thead><tr><th>Thing</th><th>Size</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Slide mount</td><td>50 × 50 mm</td><td>Industry 2×2. Thickness 1.0–3.2 mm depending on cardboard / plastic / glass.</td></tr>
+          <tr><td>Film</td><td>24 × 36 mm</td><td>Aperture mat ~28 × 40 mm so you do not clip, and you get a sliver of mount for cropping.</td></tr>
+          <tr><td>Rail centerlines</td><td>6 modules = 48 mm</td><td>Inner clear ~40.2 mm, wider than 36 mm of film.</td></tr>
+          <tr><td>Cassette inner plan</td><td>7 × 7 modules = 56 × 56 mm</td><td>Loose on purpose. Registration happens at the gate.</td></tr>
+          <tr><td>Pusher stroke</td><td>7 modules = 56 mm</td><td>One slide plus 6 mm overtravel so the old slide is fully on the ramp.</td></tr>
+          <tr><td>Cassette height</td><td>15 modules = 120 mm</td><td>~55 slides at 2 mm, ~35 at 3 mm. Cap cardboard at ~40 so the bottom does not crush.</td></tr>
+          <tr><td>Throat lip</td><td>1 plate (3.2 mm) or 2 plates (6.4 mm)</td><td>Batch setting. Retard tyre does the rest for cardboard.</td></tr>
+          <tr><td>Gate slope</td><td>1 plate drop in 8–10 modules ≈ 2°</td><td>Anti-return. Keep the actual picture plane as flat as the camera wants.</td></tr>
+          <tr><td>Ramp</td><td>3–4–5 triangle = 36.9°</td><td>No trap door. Soft landing for glass if you catch into a second cassette.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="sub">
+      <h2>Sub-assemblies</h2>
+      <p>Build six chunks that pin together. If a jam happens you want to lift the cassette off, not dismantle the copy stand.</p>
+      <div class="panel" style="padding:0.5rem">
+        <svg viewBox="0 0 980 220" class="machine" aria-label="Exploded strip of sub-assemblies">
+          <rect width="980" height="220" fill="#fffdf8"/>
+          <g font-family="ui-sans-serif,sans-serif">
+            <g transform="translate(20,40)">
+              <rect width="130" height="120" rx="8" fill="#e8e0d2"/>
+              <rect x="20" y="80" width="90" height="12" fill="#4b5563"/>
+              <rect x="20" y="100" width="90" height="12" fill="#4b5563"/>
+              <text x="65" y="28" text-anchor="middle" font-size="12" fill="#1c1814">1 · Base</text>
+              <text x="65" y="46" text-anchor="middle" font-size="10" fill="#6a6258">stiff ladder</text>
+            </g>
+            <g transform="translate(175,40)">
+              <rect width="130" height="120" rx="8" fill="#e8e0d2"/>
+              <rect x="18" y="50" width="94" height="10" fill="#4b5563"/>
+              <rect x="18" y="78" width="94" height="10" fill="#9aa3af"/>
+              <text x="65" y="28" text-anchor="middle" font-size="12" fill="#1c1814">2 · Rails</text>
+              <text x="65" y="108" text-anchor="middle" font-size="10" fill="#6a6258">smooth face up</text>
+            </g>
+            <g transform="translate(330,40)">
+              <rect width="130" height="120" rx="8" fill="#e8e0d2"/>
+              <rect x="44" y="22" width="42" height="86" fill="#6b7280"/>
+              <rect x="48" y="30" width="34" height="6" fill="#f4ead3"/>
+              <rect x="48" y="38" width="34" height="6" fill="#f4ead3"/>
+              <rect x="48" y="46" width="34" height="6" fill="#f4ead3"/>
+              <text x="65" y="128" text-anchor="middle" font-size="12" fill="#1c1814">3 · Cassette</text>
+            </g>
+            <g transform="translate(485,40)">
+              <rect width="130" height="120" rx="8" fill="#e8e0d2"/>
+              <rect x="20" y="70" width="70" height="12" fill="#9a3412"/>
+              <rect x="84" y="66" width="14" height="8" fill="#c2410c"/>
+              <text x="65" y="28" text-anchor="middle" font-size="12" fill="#1c1814">4 · Pusher</text>
+              <text x="65" y="48" text-anchor="middle" font-size="10" fill="#6a6258">56 mm stroke</text>
+            </g>
+            <g transform="translate(640,40)">
+              <rect width="130" height="120" rx="8" fill="#e8e0d2"/>
+              <rect x="35" y="40" width="60" height="44" fill="#1c1814"/>
+              <rect x="43" y="48" width="44" height="28" fill="#fde68a"/>
+              <text x="65" y="108" text-anchor="middle" font-size="12" fill="#1c1814">5 · Gate</text>
+            </g>
+            <g transform="translate(795,40)">
+              <rect width="150" height="120" rx="8" fill="#e8e0d2"/>
+              <polygon points="30,50 30,62 120,100 120,88" fill="#4b5563"/>
+              <rect x="118" y="70" width="22" height="36" fill="none" stroke="#78716c" stroke-width="3"/>
+              <text x="75" y="28" text-anchor="middle" font-size="12" fill="#1c1814">6 · Ramp + bin</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <h3>1. Base frame</h3>
+      <p>
+        A ladder of 15M side members with 13M cross-beams at the magazine, the gate, and the ramp hinge.
+        This is the only part that has to be rigid: if the gate flexes when you throw the lever, focus moves.
+        A 5×11 open frame (<code>64178</code>) is the light well. Black around it. Clamp the base to the table.
+        The camera never touches this machine.
+      </p>
+
+      <h3>2. Rails</h3>
+      <p>
+        Two 15M beams for magazine + gate, then 9M or 11M beams onto the ramp.
+        Rotate each rail so the <strong>plain side faces up</strong> and the holes run sideways.
+        Pin from the outboard side only. Do not oil. A bit of matte tape on the running face quiets cardboard;
+        skip it for plastic, which already slides too well.
+      </p>
+
+      <h3>3. Removable cassette</h3>
+      <p>
+        A 15M-tall box, 56×56&nbsp;mm inside, hanging on two long pins. Build two or three.
+        Loading the next cassette while the current one shoots is the real throughput trick.
+        Front throat lip is a 7M bridge at 1 or 2 plates above the rail (batch setting).
+        A small tyre on a sprung axle sits on the <em>second</em> slide and acts as a retard pad —
+        that is how cardboard is stopped from double-feeding.
+        Rear slot ~4&nbsp;mm high for the blade. One side panel must open for jams.
+      </p>
+
+      <h3>4. Pusher and lever</h3>
+      <p>
+        A carriage sliding on two 10–12M axles, stroke 7M, rubber-band return, click detents at both ends.
+        The blade is the one place LEGO is the wrong thickness:
+      </p>
+      <ul class="plain">
+        <li><strong>2–3&nbsp;mm plastic:</strong> a 1×4 tile (3.2&nbsp;mm) on the carriage face.</li>
+        <li><strong>Cardboard:</strong> tape a 0.8&nbsp;mm gift-card shim on that tile so the working edge is ~1.2–1.5&nbsp;mm. A 7.8&nbsp;mm beam edge will push three cardboards. Do not use one.</li>
+      </ul>
+      <p>
+        The blade hits the rear edge of the mount, centered, below the film.
+        Shoot only after the <em>return</em> detent, hand off the lever, half a second for vibration.
+      </p>
+
+      <h3>5. Gate</h3>
+      <p>
+        Same rails, plus: a black 28×40&nbsp;mm aperture mat <em>below</em> the slide;
+        one flexible axle connector (<code>45590</code>) as a side spring;
+        four ½-bushes at the mount corners, 0.5–1&nbsp;mm above a flat slide, so warped cardboard is held in depth of field without touching film;
+        a diffuser shelf 20–40&nbsp;mm below the film so LED dots disappear.
+      </p>
+
+      <h3>6. Ramp and catch</h3>
+      <p>
+        No trap door. The next slide shoves the previous one onto a ~37° ramp.
+        Prefer a second cassette as the catch — order is preserved (reversed), glass mounts do not chip.
+        A jumble bin is faster and nastier. Line either with felt.
+      </p>
+    </section>
+
+    <section id="bom">
+      <h2>Parts</h2>
+      <p>One feeder and two cassettes. Colour does not matter except black at the light well.</p>
+      <div class="grid-2">
+        <div class="panel" style="padding:0.8rem 1rem">
+          <h3 style="margin-top:0">Technic structure</h3>
+          <table>
+            <thead><tr><th>Qty</th><th>Part</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td>8</td><td>Beam 15M · 32278</td><td>Frame, rails, cassette</td></tr>
+              <tr><td>6</td><td>Beam 13M · 41239</td><td>Cross members</td></tr>
+              <tr><td>8</td><td>Beam 11M · 32525</td><td>Ramp, light well</td></tr>
+              <tr><td>8</td><td>Beam 9M · 40490</td><td>Lever, links</td></tr>
+              <tr><td>10</td><td>Beam 7M · 32524</td><td>Gate, throat, carriage</td></tr>
+              <tr><td>10</td><td>Beam 5M · 32316</td><td>Uprights</td></tr>
+              <tr><td>12</td><td>Beam 3M · 32523</td><td>Corners</td></tr>
+              <tr><td>4</td><td>L-arm 3×5 · 32526</td><td>Braces</td></tr>
+              <tr><td>2</td><td>Frame 5×11 · 64178</td><td>Light well</td></tr>
+              <tr><td>4</td><td>Panel 5×11 · 64782</td><td>Cassette walls (beams substitute)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel" style="padding:0.8rem 1rem">
+          <h3 style="margin-top:0">Motion, rubber, not-LEGO</h3>
+          <table>
+            <thead><tr><th>Qty</th><th>Part</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td>40</td><td>Pin w/ friction · 2780</td><td>General</td></tr>
+              <tr><td>16</td><td>Pin 3M · 6558</td><td>Cassette hooks, rails</td></tr>
+              <tr><td>6</td><td>Axle 12M · 3708</td><td>Carriage rods</td></tr>
+              <tr><td>16</td><td>Bush + 12× ½ bush</td><td>Hold-downs, detents</td></tr>
+              <tr><td>4</td><td>Rubber axle connector · 45590</td><td>Side spring</td></tr>
+              <tr><td>2</td><td>Tyre 2815 or 24×7</td><td>Retard pad</td></tr>
+              <tr><td>2</td><td>Belt 85544 / rubber bands</td><td>Return + retard</td></tr>
+              <tr><td>8</td><td>Tile 1×4 black</td><td>Aperture + blade</td></tr>
+              <tr><td>2</td><td>Gear 8T + 24T</td><td>Optional slower lever</td></tr>
+              <tr><td>1</td><td>Gift-card shim ~0.8 mm</td><td>Cardboard blade</td></tr>
+              <tr><td>1</td><td>Opal acrylic / tracing paper</td><td>Diffuser</td></tr>
+              <tr><td>1</td><td>Felt scrap</td><td>Bin</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="callout">A typical Technic collection already covers most of this. The pieces people actually buy are the 5×11 frames, a couple of tyres, and black tiles. Full tables live in <a href="DESIGN.md">DESIGN.md</a>.</p>
+    </section>
+
+    <section id="build">
+      <h2>Build order</h2>
+      <p>Commission each interface. Do not load a cassette until a finger-pushed slide already photographs well.</p>
+      <ol class="build">
+        <li><strong>Base + light well.</strong> Confirm the camera sees through the 5×11 frame and the diffuser kills LED dots. Tape the base down. Focus on a hand-held slide at the future rail height. Lock the camera.</li>
+        <li><strong>Rails only.</strong> 6M centers, smooth face up, pins outboard. A plastic mount and a cardboard mount should both glide with a fingertip.</li>
+        <li><strong>Gate furniture.</strong> Aperture, side spring, corner hold-downs. Hand-seat a slide, shoot, check clipping and evenness. Two consecutive hand-seated shots should crop the same.</li>
+        <li><strong>Ramp + bin.</strong> A finger-pushed slide must ride down and land softly.</li>
+        <li><strong>Pusher.</strong> Magazine off. One slide in front of the blade travels 56&nbsp;mm and stops in the gate. A second slide then ejects the first.</li>
+        <li><strong>Cassette.</strong> Lip on the 2&nbsp;mm setting, ten identical plastic slides, then cardboard with shim + retard, then glass only if you have it — into a receiving cassette, not a drop.</li>
+      </ol>
+      <h3>Optical notes the feeder cannot fix</h3>
+      <ul class="plain">
+        <li>90–100&nbsp;mm macro, or 50&nbsp;mm plus tubes. f/5.6–f/8. Manual focus once, on the emulsion.</li>
+        <li>Electronic first curtain. Manual exposure and white balance off the empty diffuser.</li>
+        <li>Daylight LED, 5000–6500&nbsp;K, high CRI, under the diffuser — never against the film.</li>
+        <li>Dust with a blower on the cassette in your hand. Do not add a Lego brush.</li>
+      </ul>
+    </section>
+
+    <section id="tune">
+      <h2>When it misbehaves</h2>
+      <table>
+        <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Two slides leave at once</td><td>Lower the lip one plate; add the retard tyre; thin the blade with the card shim.</td></tr>
+          <tr><td>Blade skips under the slide</td><td>Raise the blade; the rear slot is letting it dive.</td></tr>
+          <tr><td>Slide follows the pusher home</td><td>Add the 3.2&nbsp;mm downhill; weaken the side spring.</td></tr>
+          <tr><td>Not square in the gate</td><td>Rails not parallel, or side spring missing. 6M centerline is not optional.</td></tr>
+          <tr><td>Dark corners / rails in the picture</td><td>You are feeding along the 36&nbsp;mm axis. Turn the cassette 90°.</td></tr>
+          <tr><td>Cardboard chatters</td><td>Hole-face is up. Rotate the beam.</td></tr>
+          <tr><td>Glass chips</td><td>Catch into a cassette, not a free-fall bin.</td></tr>
+          <tr><td>Soft corner</td><td>A hold-down is crushing that corner, or a foot of the base is high.</td></tr>
+          <tr><td>Jams in the throat</td><td>Proud label. Fingernail test while loading. Open the side panel.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Sort into plastic / cardboard / glass and do not mix a cassette.
+        Throughput once tuned is about 4–8 seconds a slide of machine time.
+        Loading and dusting are the real clock — that is why there are spare cassettes.
+      </p>
+      <p class="callout">
+        Motorize last, if at all. A Control+ medium motor on 8T/24T, one crank revolution per stroke,
+        pause ~1&nbsp;s at the return detent, fire the wired shutter. Motor on the rear of the base, not on the gate frame.
+        A motorized jam is just a faster jam.
+      </p>
+    </section>
+  </main>
+  <footer>
+    Standalone design package, not part of the ssglib API.
+    Full prose, failure modes, and the alternatives that were rejected: <a href="DESIGN.md">DESIGN.md</a>.
+  </footer>
+  <script>
+    (function () {
+      const phases = [
+        {
+          tag: "Phase 0 · ready",
+          title: "Slide seated in the gate. Photograph now.",
+          caption: "<strong>Ready.</strong> Slide N is registered in the gate. The stack sits on the rails by gravity. Throw the lever only after the shutter is done."
+        },
+        {
+          tag: "Phase 1 · advance",
+          title: "Blade drives the bottom slide out of the cassette.",
+          caption: "<strong>Advance.</strong> The retard tyre holds slide N+2. Only N+1 fits under the throat lip."
+        },
+        {
+          tag: "Phase 2 · transfer",
+          title: "Incoming slide pushes the previous one onto the ramp.",
+          caption: "<strong>Transfer.</strong> Positive push, not a hope that cardboard is slippery. Gravity on the ramp takes over once N is past the hinge."
+        },
+        {
+          tag: "Phase 3 · drop",
+          title: "Previous slide lands in the bin. New slide is in the window.",
+          caption: "<strong>Drop.</strong> Overtravel of 6 mm puts N fully on the ramp. N+1 is located by the blade at the end of the 56 mm stroke."
+        },
+        {
+          tag: "Phase 4 · return",
+          title: "Pusher retracts. Stack drops one thickness onto the rails.",
+          caption: "<strong>Return.</strong> The 2° downhill and the side spring keep the gated slide from following the blade. Hand off. Wait a beat. Shoot."
+        }
+      ];
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const slidesG = document.getElementById("slides");
+      const pusher = document.getElementById("pusher");
+      const leverArm = document.getElementById("leverArm");
+      const leverKnob = document.getElementById("leverKnob");
+      const tagEl = document.getElementById("phaseTag");
+      const titleEl = document.getElementById("phaseTitle");
+      const capEl = document.getElementById("phaseCaption");
+
+      const RAIL_Y = 268;
+      const MAG_X = 132;
+      const GATE_X = 438;
+      const SLIDE_W = 100;
+      const SLIDE_H = 8;
+      const STROKE = 112;
+      const STACK_N = 7;
+
+      let phase = 0;
+      let playing = false;
+      let raf = 0;
+      let tPhase = 0;
+
+      function slideEl(fillFilm) {
+        const g = document.createElementNS(svgNS, "g");
+        const body = document.createElementNS(svgNS, "rect");
+        body.setAttribute("width", SLIDE_W);
+        body.setAttribute("height", SLIDE_H);
+        body.setAttribute("rx", "1");
+        body.setAttribute("fill", "#f4ead3");
+        body.setAttribute("stroke", "#a8a29e");
+        body.setAttribute("stroke-width", "0.8");
+        const film = document.createElementNS(svgNS, "rect");
+        film.setAttribute("x", "18");
+        film.setAttribute("y", "1.6");
+        film.setAttribute("width", "64");
+        film.setAttribute("height", "4.8");
+        film.setAttribute("fill", fillFilm ? "url(#gFilm)" : "#314e75");
+        g.appendChild(body);
+        g.appendChild(film);
+        g._body = body;
+        return g;
+      }
+
+      const stack = [];
+      for (let i = 0; i < STACK_N; i++) stack.push(slideEl(false));
+      const incoming = slideEl(true);
+      const gated = slideEl(true);
+      const outgoing = slideEl(true);
+      const binned = [];
+      for (let i = 0; i < 4; i++) binned.push(slideEl(false));
+
+      [...stack, incoming, gated, outgoing, ...binned].forEach((el) => slidesG.appendChild(el));
+
+      function setSlide(el, x, y, opacity, extra) {
+        el.setAttribute("transform", "translate(" + x + "," + y + ")" + (extra || ""));
+        el.setAttribute("opacity", opacity == null ? 1 : opacity);
+      }
+
+      function lerp(a, b, t) { return a + (b - a) * t; }
+      function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+      function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+      function layout(p, u) {
+        const e = ease(u);
+        let pusherX = 0;
+        let leverDeg = -28;
+        let inX = MAG_X, inY = RAIL_Y - SLIDE_H;
+        let gX = GATE_X, gY = RAIL_Y - SLIDE_H;
+        let oX = GATE_X, oY = RAIL_Y - SLIDE_H, oA = 0, oOp = 0;
+        let stackDrop = 0;
+        let inOp = 1, gOp = 1;
+
+        if (p === 0) {
+          oOp = 0;
+          inOp = 1;
+        } else if (p === 1) {
+          pusherX = lerp(0, STROKE * 0.45, e);
+          leverDeg = lerp(-28, 8, e);
+          inX = MAG_X + pusherX;
+          oOp = 0;
+        } else if (p === 2) {
+          pusherX = lerp(STROKE * 0.45, STROKE * 0.85, e);
+          leverDeg = lerp(8, 32, e);
+          inX = MAG_X + pusherX;
+          gX = GATE_X + lerp(0, STROKE * 0.4, e);
+          const ontoRamp = Math.max(0, (gX - 548));
+          if (gX > 520) {
+            oOp = 1; gOp = 0;
+            oX = gX;
+            oY = RAIL_Y - SLIDE_H + ontoRamp * 0.45;
+            oA = Math.min(32, ontoRamp * 0.12);
+          } else {
+            oOp = 0;
+          }
+        } else if (p === 3) {
+          pusherX = lerp(STROKE * 0.85, STROKE, e);
+          leverDeg = lerp(32, 42, e);
+          inX = MAG_X + pusherX;
+          gOp = 0;
+          oOp = 1;
+          oX = lerp(620, 800, e);
+          oY = lerp(300, 360, e);
+          oA = lerp(18, 8, e);
+          if (e > 0.85) oOp = lerp(1, 0, (e - 0.85) / 0.15);
+        } else if (p === 4) {
+          pusherX = lerp(STROKE, 0, e);
+          leverDeg = lerp(42, -28, e);
+          inX = GATE_X;
+          inY = RAIL_Y - SLIDE_H;
+          gOp = 0;
+          oOp = 0;
+          stackDrop = e;
+        }
+
+        pusher.setAttribute("transform", "translate(" + pusherX + ",0)");
+        leverArm.setAttribute("transform", "rotate(" + leverDeg + ")");
+        leverKnob.setAttribute("transform", "rotate(" + leverDeg + ") translate(0,-82)");
+
+        for (let i = 0; i < stack.length; i++) {
+          const y = RAIL_Y - SLIDE_H * (i + 2) + (p === 4 ? stackDrop * SLIDE_H : 0);
+          setSlide(stack[i], MAG_X, y);
+        }
+        setSlide(incoming, inX, inY, inOp);
+        setSlide(gated, gX, gY, gOp);
+        setSlide(outgoing, oX, oY, oOp, " rotate(" + oA + ")");
+
+        const binBase = 362;
+        for (let i = 0; i < binned.length; i++) {
+          const extra = (p === 3 && e > 0.85 && i === binned.length - 1) ? 0 : 0;
+          setSlide(binned[i], 770 + (i % 2) * 8, binBase - i * 7);
+        }
+      }
+
+      function showCopy(p) {
+        const ph = phases[p];
+        tagEl.textContent = ph.tag;
+        titleEl.textContent = ph.title;
+        capEl.innerHTML = ph.caption;
+      }
+
+      function setPhase(p, u) {
+        phase = p;
+        tPhase = u || 0;
+        showCopy(p);
+        layout(p, tPhase);
+      }
+
+      function tick(ts) {
+        if (!playing) return;
+        if (!tick.t0) tick.t0 = ts;
+        const dt = Math.min(0.05, (ts - tick.last) / 1000 || 0.016);
+        tick.last = ts;
+        tPhase += dt / 1.15;
+        if (tPhase >= 1) {
+          tPhase = 0;
+          phase = (phase + 1) % phases.length;
+          showCopy(phase);
+        }
+        layout(phase, clamp(tPhase, 0, 1));
+        raf = requestAnimationFrame(tick);
+      }
+
+      document.getElementById("btnPlay").addEventListener("click", function () {
+        playing = !playing;
+        this.textContent = playing ? "Pause" : "Play cycle";
+        if (playing) {
+          tick.t0 = 0; tick.last = 0;
+          raf = requestAnimationFrame(tick);
+        } else {
+          cancelAnimationFrame(raf);
+        }
+      });
+      document.getElementById("btnStep").addEventListener("click", function () {
+        playing = false;
+        document.getElementById("btnPlay").textContent = "Play cycle";
+        cancelAnimationFrame(raf);
+        setPhase((phase + 1) % phases.length, 1);
+      });
+      document.getElementById("btnReset").addEventListener("click", function () {
+        playing = false;
+        document.getElementById("btnPlay").textContent = "Play cycle";
+        cancelAnimationFrame(raf);
+        setPhase(0, 0);
+      });
+
+      setPhase(0, 0);
+    })();
+  </script>
+</body>
+</html>
