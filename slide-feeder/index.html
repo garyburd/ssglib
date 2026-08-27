@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gravity-rail 35mm slide feeder — LEGO Technic</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%239a3412' width='16' height='16' rx='3'/%3E%3Crect fill='%23f4ead3' x='4' y='5' width='8' height='6'/%3E%3C/svg%3E">
   <style>
     :root {
       --paper: #f3eee4;
@@ -722,6 +723,7 @@
       let playing = false;
       let raf = 0;
       let tPhase = 0;
+      let tickToken = 0;
 
       function slideEl(fillFilm) {
         const g = document.createElementNS(svgNS, "g");
@@ -843,14 +845,21 @@
 
       function setPhase(p, u) {
         phase = p;
-        tPhase = u || 0;
+        tPhase = u == null ? 0 : u;
         showCopy(p);
         layout(p, tPhase);
       }
 
-      function tick(ts) {
-        if (!playing) return;
-        if (!tick.t0) tick.t0 = ts;
+      function stopPlay() {
+        playing = false;
+        tickToken += 1;
+        cancelAnimationFrame(raf);
+        document.getElementById("btnPlay").textContent = "Play cycle";
+      }
+
+      function tick(ts, token) {
+        if (!playing || token !== tickToken) return;
+        if (!tick.last) tick.last = ts;
         const dt = Math.min(0.05, (ts - tick.last) / 1000 || 0.016);
         tick.last = ts;
         tPhase += dt / 1.15;
@@ -860,29 +869,29 @@
           showCopy(phase);
         }
         layout(phase, clamp(tPhase, 0, 1));
-        raf = requestAnimationFrame(tick);
+        raf = requestAnimationFrame(function (next) { tick(next, token); });
       }
 
       document.getElementById("btnPlay").addEventListener("click", function () {
-        playing = !playing;
-        this.textContent = playing ? "Pause" : "Play cycle";
         if (playing) {
-          tick.t0 = 0; tick.last = 0;
-          raf = requestAnimationFrame(tick);
-        } else {
-          cancelAnimationFrame(raf);
+          stopPlay();
+          return;
         }
+        playing = true;
+        tickToken += 1;
+        tick.last = 0;
+        this.textContent = "Pause";
+        const token = tickToken;
+        raf = requestAnimationFrame(function (ts) { tick(ts, token); });
       });
       document.getElementById("btnStep").addEventListener("click", function () {
-        playing = false;
-        document.getElementById("btnPlay").textContent = "Play cycle";
-        cancelAnimationFrame(raf);
-        setPhase((phase + 1) % phases.length, 1);
+        stopPlay();
+        const next = (phase + 1) % phases.length;
+        // Mid-phase so the picture matches the label (boundaries look like the next phase).
+        setPhase(next, next === 0 ? 0 : 0.55);
       });
       document.getElementById("btnReset").addEventListener("click", function () {
-        playing = false;
-        document.getElementById("btnPlay").textContent = "Play cycle";
-        cancelAnimationFrame(raf);
+        stopPlay();
         setPhase(0, 0);
       });
 
